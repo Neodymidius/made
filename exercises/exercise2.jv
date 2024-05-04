@@ -1,0 +1,58 @@
+pipeline TreePipeline {
+    TreeExtractor -> TreeTextFileInterpreter;
+
+    TreeTextFileInterpreter
+        -> TreeCSVInterpreter
+        -> TreeColumnDeleter
+        -> TreeTableInterpreter
+        -> TreeLoader;
+
+    block TreeExtractor oftype HttpExtractor { url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv";}
+
+    block TreeTextFileInterpreter oftype TextFileInterpreter { }
+
+    block TreeCSVInterpreter oftype CSVInterpreter {
+        delimiter: ";";
+    }
+
+    block TreeColumnDeleter oftype ColumnDeleter {
+        delete: [column D];
+    }
+
+    block TreeTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "lfd_nr" oftype integer,
+            "stadtteil" oftype Furth,
+            "standort" oftype text,
+            "baumart_botanisch" oftype text,
+            "id" oftype id,
+            "baumfamilie" oftype text
+        ];
+    }
+
+    block TreeLoader oftype SQLiteLoader {
+        table: "trees";
+        file: "./trees.sqlite";
+    }
+}
+
+valuetype Furth oftype text {
+    constraints: [
+        OnlyFurthDelim,
+    ];
+}
+
+valuetype id oftype text {
+    constraints: [
+       // ValidCoordinate,
+    ];
+}
+
+
+constraint OnlyFurthDelim on text:
+    value matches /^Furth-\w+/;
+
+
+constraint ValidCoordinate on text:
+    value matches /\{\w{1,3}\.\w+\}, \{\w{1,3}\.\w+\}/;
