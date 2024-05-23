@@ -1,0 +1,112 @@
+pipeline ProjectPipeline {
+    BerlinExtractor -> BerlinTextFileInterpreter;
+    BerlinTextFileInterpreter
+        -> BerlinCSVInterpreter
+        -> BerlinColumnDeleterF
+        -> BerlinColumnDeleterE
+        -> BerlinColumnDeleterC
+        -> BerlinColumnDeleterA
+        -> BerlinTableInterpreter
+        -> BerlinLoader;
+
+    DuesseldorfExtractor -> DuesseldorfTextFileInterpreter;
+    DuesseldorfTextFileInterpreter
+        -> DuesseldorfCSVInterpreter
+        -> DuesseldorfColumnDeleterF
+        -> DuesseldorfColumnDeleterE
+        -> DuesseldorfColumnDeleterC
+        -> DuesseldorfColumnDeleterA
+        -> DuesseldorfTableInterpreter
+        -> DuesseldorfLoader;
+
+
+    block BerlinExtractor oftype LocalFileExtractor {
+        filePath: "./project/00433Berli.csv";
+    }
+
+    block DuesseldorfExtractor oftype LocalFileExtractor {
+        filePath: "./project/01078Duesse.csv";
+    }
+
+
+    block BerlinTextFileInterpreter oftype TextFileInterpreter { }
+    block DuesseldorfTextFileInterpreter oftype TextFileInterpreter { }
+
+    block BerlinCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block BerlinColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block BerlinColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block BerlinColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block BerlinColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block DuesseldorfCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block DuesseldorfColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block DuesseldorfColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block DuesseldorfColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block DuesseldorfColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+
+    block BerlinTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block BerlinLoader oftype SQLiteLoader {
+        table: "berlin";
+        file: "./data/project.sqlite";
+    }
+
+    block DuesseldorfTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block DuesseldorfLoader oftype SQLiteLoader {
+        table: "duesseldorf";
+        file: "./data/project.sqlite";
+    }
+
+
+}
+
+
+valuetype Date oftype integer {
+    constraints: [
+        IsDateValid,
+    ];
+}
+
+constraint IsDateValid on integer:
+    value >= 2015010100;
+

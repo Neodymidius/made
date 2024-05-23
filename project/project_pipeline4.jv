@@ -1,0 +1,111 @@
+pipeline ProjectPipeline {
+    HannoverExtractor -> HannoverTextFileInterpreter;
+    HannoverTextFileInterpreter
+        -> HannoverCSVInterpreter
+        -> HannoverColumnDeleterF
+        -> HannoverColumnDeleterE
+        -> HannoverColumnDeleterC
+        -> HannoverColumnDeleterA
+        -> HannoverTableInterpreter
+        -> HannoverLoader;
+
+    MuenchenExtractor -> MuenchenTextFileInterpreter;
+    MuenchenTextFileInterpreter
+        -> MuenchenCSVInterpreter
+        -> MuenchenColumnDeleterF
+        -> MuenchenColumnDeleterE
+        -> MuenchenColumnDeleterC
+        -> MuenchenColumnDeleterA
+        -> MuenchenTableInterpreter
+        -> MuenchenLoader;
+
+
+    block HannoverExtractor oftype LocalFileExtractor {
+        filePath: "./project/02014Hanno.csv";
+    }
+
+    block MuenchenExtractor oftype LocalFileExtractor {
+        filePath: "./project/03379Muench.csv";
+    }
+
+    block HannoverTextFileInterpreter oftype TextFileInterpreter { }
+    block MuenchenTextFileInterpreter oftype TextFileInterpreter { }
+
+    block HannoverCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block HannoverColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block HannoverColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block HannoverColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block HannoverColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block MuenchenCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block MuenchenColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block MuenchenColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block MuenchenColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block MuenchenColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+
+        block HannoverTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block HannoverLoader oftype SQLiteLoader {
+        table: "hannover";
+        file: "./data/project.sqlite";
+    }
+
+        block MuenchenTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block MuenchenLoader oftype SQLiteLoader {
+        table: "muenchen";
+        file: "./data/project.sqlite";
+    }
+
+
+}
+
+
+valuetype Date oftype integer {
+    constraints: [
+        IsDateValid,
+    ];
+}
+
+constraint IsDateValid on integer:
+    value >= 2015010100;
+

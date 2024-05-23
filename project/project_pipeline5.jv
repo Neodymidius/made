@@ -1,0 +1,45 @@
+pipeline ProjectPipeline {
+
+    EnergyProductionExtractor -> EnergyProductionTextFileInterpreter;
+    EnergyProductionTextFileInterpreter
+        -> EnergyProductionCSVInterpreter
+        -> EnergyProductionTableInterpreter
+        -> EnergyProductionLoader;
+
+    block EnergyProductionExtractor oftype LocalFileExtractor {
+        filePath: "./project/electric_generation.csv";
+    }
+
+    block EnergyProductionTextFileInterpreter oftype TextFileInterpreter { }
+
+
+    block EnergyProductionCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+
+    block EnergyProductionTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "Time" oftype Date,
+            "Erneuerbare Energie [MWh]" oftype decimal,
+            "Konventionelle Energie [MWh]" oftype decimal,
+            "Total [MWh]" oftype decimal,
+        ];
+    }
+
+    block EnergyProductionLoader oftype SQLiteLoader {
+        table: "energy_production";
+        file: "./data/project.sqlite";
+    }
+}
+
+
+valuetype Date oftype integer {
+    constraints: [
+        IsDateValid,
+    ];
+}
+
+constraint IsDateValid on integer:
+    value >= 2015010100 and value <=2023123123;
+

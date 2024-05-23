@@ -24,12 +24,13 @@ def get_zip_name():
         station = station.split(" ")
         id = station[0]
         name = station[6]
-        pattern = rf'href="([^"]*{id}[^"]*)"'
+        pattern = rf'href="([^"]*{id}[^"]*)"' # that regex filters for the zip file name with the id that is unique.
         dict_station_zip_name[id+name] = re.search(pattern, text).group(1)
 
     return dict_station_zip_name
 
 def get_zip_file(file_name):
+    # with a get request, we get the zip file. after that write that zip file into an actual zip file
     url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/"
     r = requests.get(url+file_name)
     with open(file_name, 'wb') as file:
@@ -38,6 +39,8 @@ def get_zip_file(file_name):
 
 
 def extract_weather_data(file_name):
+    # now, there is a lot of meta data that is currently not useful. Just the last file is the interesting one.
+    # This gets extracted.
     with zipfile.ZipFile(file_name, 'r') as zip_ref:
         last_file = zip_ref.namelist()[-1]
         with zip_ref.open(last_file) as zf, open(last_file, 'wb') as f:
@@ -46,20 +49,15 @@ def extract_weather_data(file_name):
 
 
 def convert_txt_to_csv(txt_filename, csv_filename):
-    # Open the text file in read mode
+    # conveniently, the text file is already in a csv structure with ; as delim. So just convert it then for jayveeeee
     with open(txt_filename, 'r') as txt_file:
-        # Read all lines from the text file
         lines = txt_file.readlines()
 
-    # Open the CSV file in write mode
-    with open(csv_filename, 'w', newline='') as csv_file:
+    with open("project/"+csv_filename, 'w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
 
-        # Write each line to the CSV file
         for line in lines:
-            # Split the line by semicolon and strip any leading/trailing whitespace
             row = [x.strip() for x in line.split(';')]
-            # Write the row to the CSV file
             writer.writerow(row)
 
 
@@ -72,6 +70,7 @@ if __name__ == "__main__":
         print(file_name)
         get_zip_file(file_name)
         last_file = extract_weather_data(file_name)
-        convert_txt_to_csv(last_file, file_name[:-4]+".csv")
+        convert_txt_to_csv(last_file, key[:10].replace("ü", "ue") +".csv")
+        # remove unnecessary data like zip and text file.
         os.remove(file_name)
         os.remove(last_file)

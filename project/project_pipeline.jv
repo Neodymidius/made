@@ -1,0 +1,110 @@
+pipeline ProjectPipeline {
+
+    NuernbergExtractor -> NuernbergTextFileInterpreter;
+    NuernbergTextFileInterpreter
+        -> NuernbergCSVInterpreter
+        -> NuernbergColumnDeleterF
+        -> NuernbergColumnDeleterE
+        -> NuernbergColumnDeleterC
+        -> NuernbergColumnDeleterA
+        -> NuernbergTableInterpreter
+        -> NuernbergLoader;
+
+    StuttgartExtractor -> StuttgartTextFileInterpreter;
+    StuttgartTextFileInterpreter
+        -> StuttgartCSVInterpreter
+        -> StuttgartColumnDeleterF
+        -> StuttgartColumnDeleterE
+        -> StuttgartColumnDeleterC
+        -> StuttgartColumnDeleterA
+        -> StuttgartTableInterpreter
+        -> StuttgartLoader;
+
+    block NuernbergExtractor oftype LocalFileExtractor {
+        filePath: "./project/03668Nuernb.csv";
+    }
+
+    block StuttgartExtractor oftype LocalFileExtractor {
+        filePath: "./project/04931Stutt.csv";
+    }
+
+
+    block NuernbergTextFileInterpreter oftype TextFileInterpreter { }
+    block StuttgartTextFileInterpreter oftype TextFileInterpreter { }
+
+
+    block NuernbergCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block NuernbergColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block NuernbergColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block NuernbergColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block NuernbergColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block StuttgartCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block StuttgartColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block StuttgartColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block StuttgartColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block StuttgartColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block NuernbergTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block NuernbergLoader oftype SQLiteLoader {
+        table: "nuernberg";
+        file: "./data/project.sqlite";
+    }
+
+        block StuttgartTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block StuttgartLoader oftype SQLiteLoader {
+        table: "stuttgart";
+        file: "./data/project.sqlite";
+    }
+}
+
+
+valuetype Date oftype integer {
+    constraints: [
+        IsDateValid,
+    ];
+}
+
+constraint IsDateValid on integer:
+    value >= 2015010100;
+

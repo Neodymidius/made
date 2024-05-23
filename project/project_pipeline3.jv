@@ -1,0 +1,113 @@
+pipeline ProjectPipeline {
+
+    HamburgExtractor -> HamburgTextFileInterpreter;
+    HamburgTextFileInterpreter
+        -> HamburgCSVInterpreter
+        -> HamburgColumnDeleterF
+        -> HamburgColumnDeleterE
+        -> HamburgColumnDeleterC
+        -> HamburgColumnDeleterA
+        -> HamburgTableInterpreter
+        -> HamburgLoader;
+
+    FrankfurtExtractor -> FrankfurtTextFileInterpreter;
+    FrankfurtTextFileInterpreter
+        -> FrankfurtCSVInterpreter
+        -> FrankfurtColumnDeleterF
+        -> FrankfurtColumnDeleterE
+        -> FrankfurtColumnDeleterC
+        -> FrankfurtColumnDeleterA
+        -> FrankfurtTableInterpreter
+        -> FrankfurtLoader;
+
+
+
+    block HamburgExtractor oftype LocalFileExtractor {
+        filePath: "./project/01228Hambu.csv";
+    }
+
+    block FrankfurtExtractor oftype LocalFileExtractor {
+        filePath: "./project/01420Frank.csv";
+    }
+
+
+
+    block HamburgTextFileInterpreter oftype TextFileInterpreter { }
+    block FrankfurtTextFileInterpreter oftype TextFileInterpreter { }
+
+    block HamburgCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block HamburgColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block HamburgColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block HamburgColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block HamburgColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block FrankfurtCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+    block FrankfurtColumnDeleterF oftype ColumnDeleter {
+        delete: [column F];
+    }
+    block FrankfurtColumnDeleterE oftype ColumnDeleter {
+        delete: [column E];
+    }
+
+    block FrankfurtColumnDeleterC oftype ColumnDeleter {
+        delete: [column C];
+    }
+
+    block FrankfurtColumnDeleterA oftype ColumnDeleter {
+        delete: [column A];
+    }
+
+    block HamburgTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block HamburgLoader oftype SQLiteLoader {
+        table: "hamburg";
+        file: "./data/project.sqlite";
+    }
+
+        block FrankfurtTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "MESS_DATUM" oftype Date,
+            "TT_TU" oftype decimal,
+
+        ];
+    }
+
+    block FrankfurtLoader oftype SQLiteLoader {
+        table: "frankfurt";
+        file: "./data/project.sqlite";
+    }
+
+}
+
+
+valuetype Date oftype integer {
+    constraints: [
+        IsDateValid,
+    ];
+}
+
+constraint IsDateValid on integer:
+    value >= 2015010100;
+
