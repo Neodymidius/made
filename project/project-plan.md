@@ -20,14 +20,14 @@ to the weather data.
 
 <!-- Describe each datasources you plan to use in a section. Use the prefic "DatasourceX" where X is the id of the datasource. -->
 
-### Datasource1: Weather Data
+### Datasource 1: Weather Data
 * Metadata URL: https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/TU_Stundenwerte_Beschreibung_Stationen.txt
 * Data URL: https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/historical/stundenwerte_TU_00052_19760101_19880101_hist.zip
 * Data Type: txt
 
 Multiple URLs will be inserted here for different weather steations in Germany
 
-### Datasource1: Electric energy production
+### Datasource 2: Electric energy production
 * Metadata URL: https://www.smard.de/home/downloadcenter/download-marktdaten/?downloadAttributes=%7B%22selectedCategory%22:1,%22selectedSubCategory%22:1,%22selectedRegion%22:%22DE%22,%22selectedFileType%22:%22CSV%22,%22from%22:1420066800000,%22to%22:1715723999999%7D
 * Data URL: https://www.smard.de/home/downloadcenter/download-marktdaten/?downloadAttributes=%7B%22selectedCategory%22:1,%22selectedSubCategory%22:1,%22selectedRegion%22:%22DE%22,%22selectedFileType%22:%22CSV%22,%22from%22:1420066800000,%22to%22:1715723999999%7D
 * Data Type: CSV
