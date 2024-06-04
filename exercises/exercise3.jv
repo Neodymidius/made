@@ -1,0 +1,85 @@
+pipeline GueterPipeline {
+    GueterExtractor -> GueterTextFileInterpreter;
+
+    GueterTextFileInterpreter
+        -> GueterCSVInterpreter
+        -> GueterRowDeleter
+        -> GueterColumnDeleter
+        -> GueterSequenceWriter
+        -> UmlautTransformer
+        -> GueterTableInterpreter
+        -> GueterLoader;
+
+    block GueterExtractor oftype HttpExtractor { url: "https://www-genesis.destatis.de/genesis/downloads/00/tables/46131-0014_00.csv";}
+
+    block GueterTextFileInterpreter oftype TextFileInterpreter { }
+
+    block GueterCSVInterpreter oftype CSVInterpreter {
+        delimiter: ";";
+    }
+    block GueterRowDeleter oftype RowDeleter {
+        delete: [row 1, row 2, row 3, row 4, row 5, row 6, row 7];
+    }
+
+    block GueterColumnDeleter oftype ColumnDeleter {
+        delete: [column F, column G, column H, column I, column J, column K, column L, column M, column N, column O,
+        column P, column Q, column R, column S, column T, column U, column V, column W, column X, column Y, column Z,
+        column AA, column AB , column AC, column AD, column AE, column AF, column AG, column AH, column AI, column AJ
+        , column AK, column AL, column AM, column AN, column AO, column AP, column AQ, column AR, column AS];
+    }
+
+    block GueterSequenceWriter oftype CellWriter {
+        at: range A1:G1;
+        write: ["year", "month", "goods_id", "goods_name", "goods_source", "abroad", "total"];
+    }
+
+    block GueterTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "year" oftype Number,
+            "month" oftype Month,
+            "goods_id" oftype NST,
+            "goods_name" oftype text,
+            "goods_source" oftype text,
+            "abroad" oftype Number,
+            "total" oftype Number,
+        ];
+    }
+
+
+
+    block GueterLoader oftype SQLiteLoader {
+        table: "goods";
+        file: "./goodsTransportedByTrain.sqlite";
+    }
+}
+
+valuetype NST oftype text {
+    constraints: [
+        OnlyNST,
+    ];
+}
+
+valuetype Month oftype text {
+    constraints: [
+        MonthConstraint,
+    ];
+}
+
+
+valuetype Number oftype integer {
+    constraints: [
+        validNumber,
+    ];
+}
+
+constraint OnlyNST on text:
+    value matches /^NST7-\w+/;
+
+constraint MonthConstraint oftype AllowlistConstraint {
+   allowlist: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+}
+
+constraint validNumber on integer:
+    value > 0;
+
