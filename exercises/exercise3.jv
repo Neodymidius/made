@@ -6,7 +6,6 @@ pipeline GueterPipeline {
         -> GueterRowDeleter
         -> GueterColumnDeleter
         -> GueterSequenceWriter
-        -> UmlautTransformer
         -> GueterTableInterpreter
         -> GueterLoader;
 
