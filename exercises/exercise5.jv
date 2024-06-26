@@ -1,0 +1,74 @@
+pipeline GTFSPipeline {
+
+    GTFSExtractor -> ZipArchiveInterpreter -> GTFSFilePicker -> GTFSTextFileInterpreter;
+
+    GTFSTextFileInterpreter
+        -> GTFSCSVInterpreter
+        -> GTFSColumnDeleter
+        -> GTFSSequenceWriter
+        -> GTFSTableInterpreter
+        -> GTFSLoader;
+
+    block GTFSExtractor oftype HttpExtractor {
+        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
+    }
+
+    block ZipArchiveInterpreter oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+    block GTFSFilePicker oftype FilePicker {
+        path: "/stops.txt";
+    }
+
+    block GTFSTextFileInterpreter oftype TextFileInterpreter { }
+
+    block GTFSCSVInterpreter oftype CSVInterpreter {
+        delimiter: ",";
+    }
+
+    block GTFSColumnDeleter oftype ColumnDeleter {
+        delete: [column B, column D, column H, column I, column K, column L];
+    }
+
+    block GTFSSequenceWriter oftype CellWriter {
+        at: range A1:E1;
+        write: ["stop_id", "stop_name", "stop_lat", "stop_lon", "zone_id"];
+    }
+
+    block GTFSTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "stop_id" oftype integer,
+            "stop_name" oftype text,
+            "stop_lat" oftype validGPS,
+            "stop_lon" oftype validGPS,
+            "zone_id" oftype validZone,
+        ];
+    }
+
+    block GTFSLoader oftype SQLiteLoader {
+        table: "stops";
+        file: "./gtfs.sqlite";
+    }
+}
+
+valuetype validZone oftype integer {
+    constraints: [
+        validNumber,
+    ];
+}
+
+valuetype validGPS oftype integer {
+    constraints: [
+        validGPScoord,
+    ];
+}
+
+constraint validNumber on integer:
+    value == 1645;
+
+constraint validGPScoord oftype RangeConstraint {
+    lowerBound: -90;
+    upperBound: 90;
+}
