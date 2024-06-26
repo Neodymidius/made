@@ -15,7 +15,7 @@ python3 project/test_pipeline.py
 
 # Check if the output file exists
 
-echo | ls data/
+ls data
 if [ -f data/project.sqlite ]; then
     echo "Output file exists: data/project.sqlite"
 else
