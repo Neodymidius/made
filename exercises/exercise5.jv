@@ -24,7 +24,8 @@ pipeline GTFSPipeline {
     block GTFSTextFileInterpreter oftype TextFileInterpreter { }
 
     block GTFSCSVInterpreter oftype CSVInterpreter {
-        delimiter: ",";
+        delimiter: ',';
+        enclosing: '"';
     }
 
     block GTFSColumnDeleter oftype ColumnDeleter {
@@ -59,7 +60,7 @@ valuetype validZone oftype integer {
     ];
 }
 
-valuetype validGPS oftype integer {
+valuetype validGPS oftype decimal {
     constraints: [
         validGPScoord,
     ];
