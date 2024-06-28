@@ -3,6 +3,7 @@ pipeline ProjectPipeline {
     EnergyProductionExtractor -> EnergyProductionTextFileInterpreter;
     EnergyProductionTextFileInterpreter
         -> EnergyProductionCSVInterpreter
+        -> EnergyProductionSequenceWriter
         -> EnergyProductionTableInterpreter
         -> EnergyProductionLoader;
 
@@ -17,10 +18,17 @@ pipeline ProjectPipeline {
         delimiter: ",";
     }
 
+    block EnergyProductionSequenceWriter oftype CellWriter {
+        at: cell A1;
+        write: ["MESS_DATUM"];
+    }
+
+
+
     block EnergyProductionTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
-            "Time" oftype Date,
+            "MESS_DATUM" oftype Date,
             "Erneuerbare Energie [MWh]" oftype decimal,
             "Konventionelle Energie [MWh]" oftype decimal,
             "Total [MWh]" oftype decimal,
